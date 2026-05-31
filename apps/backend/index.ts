@@ -4,6 +4,7 @@ import { authSchema } from "./schema/authSchema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createMarketSchema } from "./schema/createMarketSchema";
+import { authMiddleware } from "./middleware/middleware";
 
 const app = express();
 app.use(express.json());
@@ -84,6 +85,14 @@ app.post("/admin/market", async (req, res) => {
     });
 
     return res.status(201).json({ id: market.id });
+})
+
+app.post("/api/v1/onramp", authMiddleware, (req, res) => {
+    const userId = req.userId;
+})
+
+app.post("/api/v1/order", authMiddleware, (req, res) => {
+
 })
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
