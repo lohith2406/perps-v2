@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String    @id   @default(uuid())
+  username    String    @unique
+  password    String
+  orders      Order[]
+  makerFills  Fill[]    @relation("makerFills")
+  takerFills  Fill[]    @relation("takerFills")
+}
+
+model Market {
+  id        String    @id   @default(uuid())
+  slug      String
+  imageUrl  String
+}
+
+model Order {
+  id              String    @id   @default(uuid())
+  userId          String
+  marketId        String
+  orderType       OrderType
+  side            Side
+  price           String
+  slippage        Int
+  qty             String
+  filledQty       String
+  initialMargin   String
+  status          OrderStatus
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt()
+  makerFills      Fill[]        @relation("makerFills")
+  takerFills      Fill[]        @relation("takerFills")
+  user            User          @relation(fields: [userId], references: [id])
+}
+
+enum OrderStatus {
+  FILLED
+  PARTIALLY_FILLED
+  CANCELLED
+  OPEN
+}
+
+enum OrderType {
+  MARKET
+  LIMIT
+}
+
+enum Side {
+  BID
+  ASK
+}
+
+model Fill {
+  id              String    @id   @default(uuid())
+  makerId         String
+  takerId         String
+  qty             String
+  price           String
+  makerOrderId    String
+  takerOrderId    String
+  marketId        String
+  createdAt       DateTime  @default(now())
+  makerOrder      Order     @relation("makerFills", fields: [makerOrderId], references: [id])
+  takerOrder      Order     @relation("takerFills", fields: [takerOrderId], references: [id])
+  makerUser       User      @relation("makerFills", fields: [makerId], references: [id])
+  TakerUser       User      @relation("takerFills", fields: [takerId], references: [id])
+}
