@@ -31,10 +31,10 @@ model Order {
   id              String    @id   @default(uuid())
   userId          String
   marketId        String
-  orderType       OrderType
+  type            OrderType
   side            Side
   price           String
-  slippage        Int
+  slippage        Int?
   qty             String
   filledQty       String
   initialMargin   String

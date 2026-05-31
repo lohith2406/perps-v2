@@ -5,6 +5,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createMarketSchema } from "./schema/createMarketSchema";
 import { authMiddleware } from "./middleware/middleware";
+import { client } from "./redis";
+import { onRampSchema } from "./schema/onRampSchema";
+import { loopback } from "./loopback";
 
 const app = express();
 app.use(express.json());
@@ -77,18 +80,35 @@ app.post("/admin/market", async (req, res) => {
 
     const { slug, imageUrl } = parsed.data;
 
-    const market = await prisma.market.create({
+    const response = await prisma.market.create({
         data: {
             slug,
             imageUrl
         }
     });
 
-    return res.status(201).json({ id: market.id });
+    const loopbackQueueResponse = await loopback({
+        messageType: "create_market",
+        marketId: response.id
+    });
+
+    return res.status(201).json({ id: response.id });
 })
 
-app.post("/api/v1/onramp", authMiddleware, (req, res) => {
+app.post("/api/v1/onramp", authMiddleware, async (req, res) => {
     const userId = req.userId;
+    const parsed = onRampSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ message: "Validation error" });
+    }
+    
+    const { amount } = parsed.data;
+
+    const loopbackQueueResponse = await loopback({
+        messageType: "onramp",
+        userId,
+        amount: amount.toString()
+    });
 })
 
 app.post("/api/v1/order", authMiddleware, (req, res) => {

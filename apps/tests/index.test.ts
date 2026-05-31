@@ -126,7 +126,7 @@ describe("Order endpoints", () => {
     user2Token = response2.data.token;
 
     await axios.post(`${BACKEND_URL}/api/v1/onramp`, {
-      amount: 10000
+      amount: 100000
     }, {
       headers: {
         Authorization: `Bearer ${user1Token}`
@@ -148,7 +148,8 @@ describe("Order endpoints", () => {
       qty: 10,
       side: "LONG",
       marketId: MARKET_ID,
-      type: "LIMIT"
+      type: "LIMIT",
+      equity: 1000
     }, {
       headers: {
         Authorization: `Bearer ${user1Token}`
@@ -166,7 +167,8 @@ describe("Order endpoints", () => {
       qty: 10,
       side: "SHORT",
       marketId: MARKET_ID,
-      type: "LIMIT"
+      type: "LIMIT",
+      equity: 1000
     }, {
       headers: {
         Authorization: `Bearer ${user2Token}`
@@ -184,7 +186,8 @@ describe("Order endpoints", () => {
       qty: 20,
       side: "SHORT",
       marketId: MARKET_ID,
-      type: "LIMIT"
+      type: "LIMIT",
+      equity: 1000
     }, {
       headers: {
         Authorization: `Bearer ${user2Token}`
